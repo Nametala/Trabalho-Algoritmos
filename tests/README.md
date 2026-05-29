@@ -1,6 +1,10 @@
 # Testes
 
-Esta pasta contem testes automatizados do projeto.
+* Colisão da Nave com asteróide
+* Colisão do projétil com o asteróide
+* Perda de vida
+* Pontuação aumentando corretamente
+* Movimentação unicamente horizontal
 
 ## Arquivos
 
