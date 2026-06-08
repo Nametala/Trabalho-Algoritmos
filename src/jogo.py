@@ -1,4 +1,5 @@
 import pygame
+import random
 from src.sprites import Projetil
 
 from src.config import (
@@ -11,7 +12,8 @@ from src.config import (
     CAMINHO_SPRITES,
     CAMINHO_FUNDO,
     CAMINHO_NAVE,
-    CAMINHO_TIRO
+    CAMINHO_TIRO,
+    CAMINHO_INIMIGO
 )
 
 from src.funcoes import (
@@ -21,7 +23,6 @@ from src.funcoes import (
     verificar_colisao,
     tomar_dano,
 )
-from src.sprites import pegar_sprite
 from src.dados import (
     salvar_recorde,
     carregar_recorde,
@@ -38,24 +39,38 @@ def executar_jogo():
     relogio = pygame.time.Clock()
     rodando = True
 
-    # Carregando as imagens do jogo
+    #  CONFIGURAÇÕES CUSTOMIZÁVEIS 
+    VIDA_INIMIGO_PADRAO = 2  # vida de todos os inimigos
+    DANO_TIRO = 1            # Quanto de vida cada tiro tira do inimigo
+    
+    velocidade_inimigo = 2   # Velocidade de descida dos inimigos
+    velocidade = 5           # Velocidade de movimento do jogador
+    frequencia_spawn_min = 30    # Parametro do spawn de inimigos
+    frequencia_spawn_max = 90 # Parametro do spawn de inimigos
+    frequencia_spawn = random.randint(frequencia_spawn_min, frequencia_spawn_max) # Randomiza o spawn de inimigos
+
+    # Jogador
     imagem_nave_original = pygame.image.load(CAMINHO_NAVE).convert_alpha()
     escala_nave = 2 
     largura_nave = int(imagem_nave_original.get_width() * escala_nave)
     altura_nave = int(imagem_nave_original.get_height() * escala_nave)
     player_image = pygame.transform.scale(imagem_nave_original, (largura_nave, altura_nave))
-
-    # Para remover o fundo preto (torna a cor preta transparente):
     player_image.set_colorkey((0, 0, 0))
     player_image = player_image.convert_alpha()
-    
-    # Gema pequena: usando tamanho 64x64
-    gem_image    = pegar_sprite(CAMINHO_SPRITES, x=900, y=690, width=200, height=200, scale=0.5)
 
-    # Morcego: usando tamanho 180x120 por causa das asas abertas
-    bat_image    = pegar_sprite(CAMINHO_SPRITES, x=905, y=1060, width=200, height=130, scale=0.5)
+    # Inimigo
+    imagem_inimigo_original = pygame.image.load(CAMINHO_INIMIGO).convert_alpha()
+    escala_inimigo = 2
+    largura_inimigo = int(imagem_inimigo_original.get_width() * escala_inimigo)
+    altura_inimigo = int(imagem_inimigo_original.get_height() * escala_inimigo)
+    enemy_image = pygame.transform.scale(imagem_inimigo_original, (largura_inimigo, altura_inimigo))
     
-    # O ponto inicial da nave
+    # Fundo
+    imagem_original = pygame.image.load(CAMINHO_FUNDO).convert()
+    imagem_fundo = pygame.transform.scale(imagem_original, (LARGURA_TELA, ALTURA_TELA))
+
+    # 2. CONFIGURANDO OS ELEMENTOS 
+    # Ponto inicial do jogador (centralizado embaixo)
     posicao_inicial_x = (LARGURA_TELA // 2) - (largura_nave // 2)
     posicao_inicial_y = ALTURA_TELA - altura_nave - 20
 
@@ -64,40 +79,27 @@ def executar_jogo():
         "rect": player_image.get_rect(topleft=(posicao_inicial_x, posicao_inicial_y))
     }
 
-    gema = {
-        "imagem": gem_image,
-        "rect": gem_image.get_rect(topleft=(500, 300))
-    }
-    
-    inimigo = {
-        "imagem": bat_image,
-        "rect": bat_image.get_rect(topleft=(200, 500))
-    }
-    
-    # Criando o grupo de tiros controlado pelo jogo
     grupo_tiros = pygame.sprite.Group()
+    lista_inimigos = []
 
-    velocidade = 5
+    temporizador_spawn = 0
     pontos = 0
-    vidas = 3
+
+    vidas = 3   # Vidas
+    if vidas < 0:
+        vidas = 0
     recorde = carregar_recorde(CAMINHO_RECORDE)
 
-    # Carrega e redimensiona o fundo UMA vez antes do loop começar
-    imagem_original = pygame.image.load(CAMINHO_FUNDO).convert()
-    imagem_fundo = pygame.transform.scale(imagem_original, (LARGURA_TELA, ALTURA_TELA))
-
-    # Loop principal: processa entrada, atualiza estado e renderiza a cena.
     while rodando:
         relogio.tick(FPS)
-
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 rodando = False
             
-            # ESPAÇO (tiro)
+            # ESPAÇO (Disparar tiro)
             if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
-                novo_tiro = Projetil(jogador["rect"].centerx, jogador["rect"].top, CAMINHO_TIRO)
+                novo_tiro = Projetil(jogador["rect"].centerx, player_image.get_rect(topleft=(jogador["rect"].x, jogador["rect"].y)).top, CAMINHO_TIRO)
                 grupo_tiros.add(novo_tiro)
 
         # W A S D
@@ -111,7 +113,7 @@ def executar_jogo():
         if teclas[pygame.K_s]:
             jogador["rect"].y += velocidade
 
-        # Limitando o jogador rigidamente dentro das bordas internas da tela
+        # Restrição das bordas da tela para o jogador
         if jogador["rect"].left < 0:
             jogador["rect"].left = 0
         if jogador["rect"].right > LARGURA_TELA:
@@ -120,31 +122,57 @@ def executar_jogo():
             jogador["rect"].top = 0
         if jogador["rect"].bottom > ALTURA_TELA:
             jogador["rect"].bottom = ALTURA_TELA
-        
-        # Atualiza a posição de todos os projéteis ativos
+
+        # SISTEMA DE GERAÇÃO E MOVIMENTO DOS INIMIGOS 
+        temporizador_spawn += 1
+        if temporizador_spawn >= frequencia_spawn:
+            temporizador_spawn = 0
+            
+            # Todos os inimigos nascem EXCLUSIVAMENTE no topo, variando apenas a posição X
+            x_spawn = random.randint(0, LARGURA_TELA - largura_inimigo)
+            y_spawn = -altura_inimigo
+
+            novo_inimigo = {
+                "rect": enemy_image.get_rect(topleft=(x_spawn, y_spawn)),
+                "vida": VIDA_INIMIGO_PADRAO  # Atribui a quantidade de vida atual configurada
+            }
+            lista_inimigos.append(novo_inimigo)
+
+        # Atualiza a posição dos inimigos apenas para baixo (eixo Y)
+        for ini in lista_inimigos[:]:
+            ini["rect"].y += velocidade_inimigo
+            
+            # SE O INIMIGO PASSAR DO FINAL DA TELA: O jogador perder
+            if ini["rect"].top > ALTURA_TELA:
+                vidas = tomar_dano(vidas, 100)
+                lista_inimigos.remove(ini)
+
+        # Atualiza a movimentação física dos tiros ativos
         grupo_tiros.update() 
 
-        # Verificação de colisão com a Gema
-        if verificar_colisao(jogador["rect"], gema["rect"]):
-            pontos = calcular_pontos(pontos, 10)
-            gema["rect"].x += 80
-            gema["rect"].y += 50
-            if gema["rect"].x > LARGURA_TELA - gema["rect"].width: 
-                gema["rect"].x = 50
-            if gema["rect"].y > ALTURA_TELA - gema["rect"].height: 
-                gema["rect"].y = 50
+        #  VERIFICAÇÃO DE COLISÕES 
+        # Colisão: Projéteis contra Inimigos
+        for tiro in grupo_tiros.sprites():
+            for ini in lista_inimigos[:]:
+                if verificar_colisao(tiro.rect, ini["rect"]):
+                    tiro.kill()  # O tiro some imediatamente
+                    
+                    # Aplica o dano na nave inimiga
+                    ini["vida"] -= DANO_TIRO
+                    
+                    # Se a vida do inimigo zerar ou ficar negativa, ele explode de verdade
+                    if ini["vida"] <= 0:
+                        lista_inimigos.remove(ini)  
+                        pontos = calcular_pontos(pontos, 10)
+                    break
 
-        # Verificação de colisão com o Inimigo
-        if verificar_colisao(jogador["rect"], inimigo["rect"]):
-            vidas = tomar_dano(vidas, 1)
-            inimigo["rect"].x += 80
-            inimigo["rect"].y += 50
-            if inimigo["rect"].x > LARGURA_TELA - inimigo["rect"].width: 
-                inimigo["rect"].x = 50
-            if inimigo["rect"].y > ALTURA_TELA - inimigo["rect"].height: 
-                inimigo["rect"].y = 50
+        # Colisão: Inimigos contra o Jogador (Colisão direta no espaço)
+        for ini in lista_inimigos[:]:
+            if verificar_colisao(jogador["rect"], ini["rect"]):
+                vidas = tomar_dano(vidas, 1)
+                lista_inimigos.remove(ini)  
 
-        # Regras de fim de jogo e recorde
+        # Condições de Fim de Jogo e Atualização do Recorde
         if jogador_perdeu(vidas):
             rodando = False
 
@@ -156,19 +184,15 @@ def executar_jogo():
             f"{TITULO_JOGO} | Pontos: {pontos} | Recorde: {recorde} | Vidas: {vidas}"
         )
 
-       
-        # Desenha o fundo da galáxia cobrindo toda a tela
+        #  RENDERIZAÇÃO (DESENHO) 
         tela.blit(imagem_fundo, (0, 0)) 
         
-        # Desenha os personagens e objetos usando as chaves corretas do dicionário
-        tela.blit(gema["imagem"], gema["rect"])
-        tela.blit(inimigo["imagem"], inimigo["rect"])
+        for ini in lista_inimigos:
+            tela.blit(enemy_image, ini["rect"])
+            
         tela.blit(jogador["imagem"], jogador["rect"])
-        
-        # Desenha todos os tiros na tela de uma vez só
         grupo_tiros.draw(tela) 
 
-        # Atualiza a tela com tudo o que foi desenhado neste frame
         pygame.display.flip()
 
     pygame.quit()
