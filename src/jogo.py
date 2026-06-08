@@ -101,7 +101,9 @@ def executar_jogo():
             if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
                 novo_tiro = Projetil(jogador["rect"].centerx, player_image.get_rect(topleft=(jogador["rect"].x, jogador["rect"].y)).top, CAMINHO_TIRO)
                 grupo_tiros.add(novo_tiro)
-
+            elif evento.type == pygame.MOUSEBUTTONDOWN:
+                novo_tiro = Projetil(jogador["rect"].centerx, player_image.get_rect(topleft=(jogador["rect"].x, jogador["rect"].y)).top, CAMINHO_TIRO)
+                grupo_tiros.add(novo_tiro)
         # W A S D
         teclas = pygame.key.get_pressed()
         if teclas[pygame.K_a]:
