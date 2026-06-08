@@ -1,25 +1,32 @@
 import pygame
 
 class Projetil(pygame.sprite.Sprite):
-    def __init__(self, x_jogador, y_jogador):
+    def __init__(self, x_jogador, y_jogador, local_arquivo): 
         super().__init__()
-        # 1. Criamos uma superfície retangular simples (largura: 6px, altura: 15px)
-        self.image = pygame.Surface((6, 15))
+        super().__init__()
         
-        # 2. Pintamos o tiro de vermelho neon para destacar bem na tela
-        self.image.fill((255, 0, 0)) 
+        # Carrega o laser único do Piskel
+        imagem_original = pygame.image.load(local_arquivo).convert_alpha()
         
-        # 3. Definimos o rect e posicionamos na ponta da nave
+        # Define a escala do projétil
+        escala_laser = 5
+        largura_nova = int(imagem_original.get_width() * escala_laser)
+        altura_nova = int(imagem_original.get_height() * escala_laser)
+        
+        # Redimensiona o tiro mantendo as proporções
+        self.image = pygame.transform.scale(imagem_original, (largura_nova, altura_nova))
+        
+        # Posiciona o tiro saindo centralizado do bico do jogador
         self.rect = self.image.get_rect()
         self.rect.centerx = x_jogador
-        self.rect.top = y_jogador
-        
+        self.rect.bottom = y_jogador  
+
         self.velocidade = 10
 
     def update(self):
-        # Move para cima
+        # Move o tiro para cima
         self.rect.y -= self.velocidade
         
-        # Se sair da tela, elimina o objeto
+        # Se o tiro sair da tela, ele se destrói
         if self.rect.y <= 0:
             self.kill()

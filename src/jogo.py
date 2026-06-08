@@ -9,7 +9,9 @@ from src.config import (
     CINZA,
     CAMINHO_RECORDE,
     CAMINHO_SPRITES,
-    CAMINHO_FUNDO
+    CAMINHO_FUNDO,
+    CAMINHO_NAVE,
+    CAMINHO_TIRO
 )
 
 from src.funcoes import (
@@ -36,24 +38,30 @@ def executar_jogo():
     relogio = pygame.time.Clock()
     rodando = True
 
-    # 1. Carregando as imagens recortadas do Spritesheet
-    # Jogador: usando tamanho 110x110 para capturar o quadrado perfeitamente
-    # Coordenadas com recorte expandido (margem de segurança)
-    player_image = pegar_sprite(CAMINHO_SPRITES, x=50, y=104, width=27, height=34, scale=3.0)
+    # Carregando as imagens do jogo
+    imagem_nave_original = pygame.image.load(CAMINHO_NAVE).convert_alpha()
+    escala_nave = 2 
+    largura_nave = int(imagem_nave_original.get_width() * escala_nave)
+    altura_nave = int(imagem_nave_original.get_height() * escala_nave)
+    player_image = pygame.transform.scale(imagem_nave_original, (largura_nave, altura_nave))
 
     # Para remover o fundo preto (torna a cor preta transparente):
     player_image.set_colorkey((0, 0, 0))
     player_image = player_image.convert_alpha()
+    
     # Gema pequena: usando tamanho 64x64
     gem_image    = pegar_sprite(CAMINHO_SPRITES, x=900, y=690, width=200, height=200, scale=0.5)
 
     # Morcego: usando tamanho 180x120 por causa das asas abertas
     bat_image    = pegar_sprite(CAMINHO_SPRITES, x=905, y=1060, width=200, height=130, scale=0.5)
     
-    # 2. Criando a estrutura de Sprites usando Dicionários
+    # O ponto inicial da nave
+    posicao_inicial_x = (LARGURA_TELA // 2) - (largura_nave // 2)
+    posicao_inicial_y = ALTURA_TELA - altura_nave - 20
+
     jogador = {
         "imagem": player_image,
-        "rect": player_image.get_rect(topleft=(100, 100))
+        "rect": player_image.get_rect(topleft=(posicao_inicial_x, posicao_inicial_y))
     }
 
     gema = {
@@ -74,7 +82,7 @@ def executar_jogo():
     vidas = 3
     recorde = carregar_recorde(CAMINHO_RECORDE)
 
-    # Carrega e redimensiona o fundo UMA vez antes do loop começar (poupa processamento)
+    # Carrega e redimensiona o fundo UMA vez antes do loop começar
     imagem_original = pygame.image.load(CAMINHO_FUNDO).convert()
     imagem_fundo = pygame.transform.scale(imagem_original, (LARGURA_TELA, ALTURA_TELA))
 
@@ -82,27 +90,36 @@ def executar_jogo():
     while rodando:
         relogio.tick(FPS)
 
-        # --- 1. CAPTURA DE EVENTOS ---
+
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 rodando = False
             
-            # Detecta o disparo do tiro (barra de espaço) dentro do loop correto
+            # ESPAÇO (tiro)
             if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
-                novo_tiro = Projetil(jogador["rect"].centerx, jogador["rect"].top)
+                novo_tiro = Projetil(jogador["rect"].centerx, jogador["rect"].top, CAMINHO_TIRO)
                 grupo_tiros.add(novo_tiro)
 
-        # Movimentação contínua do teclado
+        # W A S D
         teclas = pygame.key.get_pressed()
-        if teclas[pygame.K_LEFT]:
+        if teclas[pygame.K_a]:
             jogador["rect"].x -= velocidade
-        if teclas[pygame.K_RIGHT]:
+        if teclas[pygame.K_d]:
             jogador["rect"].x += velocidade
+        if teclas[pygame.K_w]:
+            jogador["rect"].y -= velocidade
+        if teclas[pygame.K_s]:
+            jogador["rect"].y += velocidade
 
-        # Limitando o jogador dentro das bordas da tela
-        jogador["rect"].x = limitar_valor(jogador["rect"].x, 0, LARGURA_TELA - jogador["rect"].width)
-        jogador["rect"].y = limitar_valor(jogador["rect"].y, 0, ALTURA_TELA - jogador["rect"].height)
-        
+        # Limitando o jogador rigidamente dentro das bordas internas da tela
+        if jogador["rect"].left < 0:
+            jogador["rect"].left = 0
+        if jogador["rect"].right > LARGURA_TELA:
+            jogador["rect"].right = LARGURA_TELA
+        if jogador["rect"].top < 0:
+            jogador["rect"].top = 0
+        if jogador["rect"].bottom > ALTURA_TELA:
+            jogador["rect"].bottom = ALTURA_TELA
         
         # Atualiza a posição de todos os projéteis ativos
         grupo_tiros.update() 
@@ -139,7 +156,7 @@ def executar_jogo():
             f"{TITULO_JOGO} | Pontos: {pontos} | Recorde: {recorde} | Vidas: {vidas}"
         )
 
-        # --- 3. RENDERIZAÇÃO (DESENHO) ---
+       
         # Desenha o fundo da galáxia cobrindo toda a tela
         tela.blit(imagem_fundo, (0, 0)) 
         
