@@ -13,7 +13,9 @@ from src.config import (
     CAMINHO_FUNDO,
     CAMINHO_NAVE,
     CAMINHO_TIRO,
-    CAMINHO_INIMIGO
+    CAMINHO_INIMIGO,
+    BRANCO,
+    PRETO
 )
 
 from src.funcoes import (
@@ -30,11 +32,13 @@ from src.dados import (
 
 
 def executar_jogo():
+
     """Executa o loop principal do jogo e controla estado, colisões e pontuação."""
     pygame.init()
     
     tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
     pygame.display.set_caption(TITULO_JOGO)
+    
 
     relogio = pygame.time.Clock()
     rodando = True
@@ -89,6 +93,7 @@ def executar_jogo():
     if vidas < 0:
         vidas = 0
     recorde = carregar_recorde(CAMINHO_RECORDE)
+    mostrar_tela_inicial(tela)
 
     while rodando:
         relogio.tick(FPS)
@@ -195,4 +200,33 @@ def executar_jogo():
 
         pygame.display.flip()
 
-    pygame.quit()
+
+
+def mostrar_tela_inicial(tela):
+    fonte_titulo = pygame.font.Font(None, 74)
+    texto_titulo = fonte_titulo.render(TITULO_JOGO, True, BRANCO)
+
+    fonte_subtitulo = pygame.font.Font(None, 36)
+    texto_subtitulo = fonte_subtitulo.render("PRESSIONE ESPAÇO PARA INICIAR",True, BRANCO)
+
+    retangulo_subtitulo = texto_subtitulo.get_rect(center=(LARGURA_TELA // 2, ALTURA_TELA // 2 + 40))
+    retangulo_titulo = texto_titulo.get_rect(center=(LARGURA_TELA // 2, ALTURA_TELA // 2 - 40))
+    esperando = True
+
+    while esperando:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            
+            if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
+                esperando = False
+        
+        tela.fill(PRETO)
+        tela.blit(texto_titulo, retangulo_titulo)
+        tela.blit (texto_subtitulo, retangulo_subtitulo)
+        pygame.display.flip()
+
+    
+
+
