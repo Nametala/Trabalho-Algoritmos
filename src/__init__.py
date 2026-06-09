@@ -9,7 +9,7 @@ class Projetil(pygame.sprite.Sprite):
         imagem_original = pygame.image.load(local_arquivo).convert_alpha()
         
         # Define a escala do projétil
-        escala_laser = 5
+        escala_laser = 8
         largura_nova = int(imagem_original.get_width() * escala_laser)
         altura_nova = int(imagem_original.get_height() * escala_laser)
         
