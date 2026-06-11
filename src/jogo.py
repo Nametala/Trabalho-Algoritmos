@@ -211,11 +211,14 @@ def executar_jogo():
                 tela.blit(enemy_image, ini["rect"])
             tela.blit(jogador["imagem"], jogador["rect"])
             grupo_tiros.draw(tela) 
+            mostrar_pontos(tela,pontos,recorde)
             pygame.display.flip()
 
         # Se saiu do loop 'rodando_partida', significa que o jogador morreu!
         # Chamamos a tela final antes de reiniciar o loop principal.
+        mostrar_pontos(tela,pontos,recorde)
         mostrar_tela_final(tela, fundo_final)
+        
 
 
 def mostrar_tela_inicial(tela, fundo_inicial):
@@ -266,3 +269,19 @@ def mostrar_tela_final(tela, fundo_final):
         tela.blit(texto_titulo, retangulo_titulo)
         tela.blit(texto_subtitulo, retangulo_subtitulo)
         pygame.display.flip()
+
+def mostrar_pontos(tela,pontos, recorde):
+    fonte_pontos = pygame.font.Font(None, 74)
+    texto_pontos = fonte_pontos.render(f"Força: {pontos}", True, BRANCO)
+
+    fonte_recorde = pygame.font.Font(None, 74)
+    texto_recorde = fonte_recorde.render(f"Record: {recorde}", True, BRANCO)
+
+    
+    tela.blit(texto_pontos, (10,10))
+    tela.blit(texto_recorde,(10,40))
+
+
+
+
+
