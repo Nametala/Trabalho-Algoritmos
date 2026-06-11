@@ -17,7 +17,11 @@ from src.config import (
     CAMINHO_TIRO,
     CAMINHO_INIMIGO,
     BRANCO,
-    PRETO
+    PRETO,
+    CAMINHO_VIDA_CHEIA,
+    CAMINHO_23_VIDA,
+    CAMINHO_13_VIDA,
+    CAMINHO_VIDA_VAZIA
 )
 
 TAMANHO = (LARGURA_TELA, ALTURA_TELA)
@@ -79,6 +83,15 @@ def executar_jogo():
         player_image.set_colorkey((0, 0, 0))
         player_image = player_image.convert_alpha()
 
+        imagem_barra_vida_original = pygame.image.load(CAMINHO_VIDA_CHEIA).convert_alpha()
+        escala_barra_vida = 5 
+        largura_barra_vida = int(imagem_barra_vida_original.get_width() * escala_barra_vida)
+        altura_barra_vida = int(imagem_barra_vida_original.get_height() * escala_barra_vida)
+        barra_vida_image = pygame.transform.scale(imagem_barra_vida_original, (largura_barra_vida, altura_barra_vida))
+        barra_vida_image = barra_vida_image.convert_alpha()
+
+
+
         imagem_inimigo_original = pygame.image.load(CAMINHO_INIMIGO).convert_alpha()
         escala_inimigo = 2
         largura_inimigo = int(imagem_inimigo_original.get_width() * escala_inimigo)
@@ -87,6 +100,9 @@ def executar_jogo():
         
         posicao_inicial_x = (LARGURA_TELA // 2) - (largura_nave // 2)
         posicao_inicial_y = ALTURA_TELA - altura_nave - 20
+
+        posicao_barra_vida_x = posicao_inicial_x
+        posicao_barra_vida_y = (posicao_inicial_y - 40)
 
         jogador = {
             "imagem": player_image,
@@ -112,6 +128,8 @@ def executar_jogo():
                     pygame.quit()
                     sys.exit()
                 
+                    
+
                 # Disparar tiro
                 if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
                     novo_tiro = Projetil(jogador["rect"].centerx, player_image.get_rect(topleft=(jogador["rect"].x, jogador["rect"].y)).top, CAMINHO_TIRO)
