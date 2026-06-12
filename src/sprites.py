@@ -1,4 +1,5 @@
 import pygame
+from src.config import CAMINHO_CHEFE, LARGURA_TELA
 
 def pegar_sprite(local_arquivo, x, y, width, height, scale=1.0):
     """Carrega uma imagem e recorta um pedaço específico dela (spritesheet)."""
@@ -47,3 +48,21 @@ class Projetil(pygame.sprite.Sprite):
         # Se o tiro sair da tela, ele se destrói
         if self.rect.y <= 0:
             self.kill()
+
+class Chefe(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+
+        # Carrega a imagem do chefe
+        self.image_original = pygame.image.load(CAMINHO_CHEFE).convert_alpha()
+        
+        # TAMANHO CHEFE
+        self.tamanho = (400, 400)
+        self.image = pygame.transform.scale(self.image_original, self.tamanho)
+        
+        self.rect = self.image.get_rect()
+        
+        # Posiciona no meio do eixo X e um pouco acima da tela (para entrar deslizando)
+        self.rect.centerx = LARGURA_TELA // 2
+        self.rect.bottom = 0 
+        
