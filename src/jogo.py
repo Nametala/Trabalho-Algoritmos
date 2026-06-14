@@ -68,13 +68,13 @@ def executar_jogo():
         # CONFIGURAÇÕES DA PARTIDA 
 
         # Status dos Inimigos Comuns
-        VIDA_INIMIGO_PADRAO = 3  
+        VIDA_INIMIGO_PADRAO = 2  
         velocidade_inimigo = 1  
 
         # Status do Chefe 
-        VIDA_CHEFE_PADRAO = 20
-        velocidade_chefe = 0.2  
-        tempo_spawn_chefe = 30000 # Tempo epra spawn
+        VIDA_CHEFE_PADRAO = 25
+        velocidade_chefe = 1
+        tempo_spawn_chefe = 3000 # Tempo de espera spawn chefe
         
         # Outras configurações
         DANO_TIRO = 1            
@@ -169,7 +169,7 @@ def executar_jogo():
                     novo_tiro = Projetil(jogador["rect"].centerx, jogador["rect"].top, CAMINHO_TIRO)
                     grupo_tiros.add(novo_tiro)
 
-            # Movimentação W A S D
+            # W A S D
             teclas = pygame.key.get_pressed()
             if teclas[pygame.K_a]: jogador["rect"].x -= velocidade
             if teclas[pygame.K_d]: jogador["rect"].x += velocidade
@@ -220,10 +220,16 @@ def executar_jogo():
             # Movimento dos inimigos comuns
             for ini in lista_inimigos[:]:
                 ini["rect"].y += velocidade_inimigo
-                # Inimigo chegar ao fim
+                # Inimigo chegar ao fim da tela
                 if ini["rect"].top > ALTURA_TELA:
                     vidas = tomar_dano(vidas, 2) 
                     lista_inimigos.remove(ini)
+
+            # Chefe chegar ao fim da tela
+            if chefe is not None:
+                if chefe.rect.bottom >= ALTURA_TELA:
+                    vidas = tomar_dano(vidas, 100) 
+                    chefe = None
 
             grupo_tiros.update() 
 
@@ -238,7 +244,6 @@ def executar_jogo():
                             lista_inimigos.remove(ini)  
                             pontos = calcular_pontos(pontos, 10)
                         break
-                
                 # Contra Chefe
                 if chefe is not None and verificar_colisao(tiro.rect, chefe.rect):
                     tiro.kill()
