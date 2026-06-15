@@ -1,6 +1,6 @@
 # Proposta Inicial do Jogo
 
-Jogo estilo Nave destruindo e desviando de asteróides.
+Jogo estilo Nave destruindo e desviando de naves inimigas.
 
 ## 1. Nome provisório do jogo
 
@@ -13,7 +13,7 @@ Spaceshi.py
 
 ## 3. Tipo de jogo
 
-Jogo estilo Nave destruindo e desviando de asteróides.Exemplos:
+Jogo estilo Nave destruindo e desviando de naves inimigos e chefe.
 
 ## 4. Descrição geral do jogo
 
@@ -25,11 +25,13 @@ Sobreviver o máximo de tempo possível enquanto desvia de asteróides.
 
 ## 6. Regras principais
 
-O jogador terá apenas 1 de vida, e ao tocar qualquer asteróide, a nave será destruída e o jogador perde. A pontuação será baseada no tempo sobrevivido, ficando mais difícil a cada segundo e portanto aumentando sua pontuação progressivamente.
+O jogador terá apenas 3 de vida, e ao tocar qualquer inimigo, a nave será danificada e o jogador perde vidas. A pontuação será baseada no tempo sobrevivido, ficando mais difícil a cada segundo e portanto aumentando sua pontuação progressivamente.
 
-- Regra 1: Apenas 1 de vida
+- Regra 1: Apenas 3 de vida
 - Regra 2: A nave pode destruir asteróides com projéteis
 - Regra 3: A pontuação escala progressivamente com o tempo sobrevivido
+- Regra 4: Se um inimigo alcançar o final o dano é dobrado
+- Regra 5: Contato direto com o chefe, ou caso ele alcance o fim, é fim de jogo
 
 ## 7. Condição de vitória
 
@@ -37,15 +39,16 @@ O objetivo é se superar a cada tentativa, buscando maiores pontuações a cada 
 
 ## 8. Condição de derrota ou encerramento
 
-O jogador perde ao ter contato com qualquer asteróide durante o jogo.
+O jogador perde ao ter contato com qualquer inimigo durante o jogo ou ao deixar algum inimigo alcançar o fim da tela. Quando o jogador nao tiver mais vidas restantes, é fim de jogo.
 
 ## 9. Elementos previstos no jogo
 
 * Nave
-* Asteróides
+* Inimigo
+* Chefe
 * Projétil
 * Background
-* Pontuação (baseada no tempo)
+* Pontuação
 
 ## Jogador ou elemento principal
 
@@ -53,7 +56,7 @@ Nave
 
 ## Obstáculos, inimigos ou desafios
 
-Asteróides
+Naves inimigas e nave chefe
 
 ## Itens, alvos ou objetos de interação
 
@@ -67,7 +70,7 @@ Vida e pontuações.
 
 - Tecla A: mover para esquerda
 - Tecla D: mover para direita
-- Espaço: Atirar
+- Espaço/Botão direito do mouse: Atirar
 - ESC: Sair do jogo/Pause
 
 ## 11. Organização inicial do código
@@ -101,7 +104,7 @@ Vida e pontuações.
 
 ## 14. Escopo mínimo para a entrega final
 
-Nave com movimentação horizontal que pode desviar de meteoros com colisão própria e um sistema de pontuação simples.
+Nave com movimentação multidirecional que pode desviar de inimigos com colisão própria e um sistema de pontuação simples.
 
 ## 15. Possíveis melhorias, caso haja tempo
 

@@ -4,7 +4,7 @@
 * Colisão do projétil com o asteróide
 * Perda de vida
 * Pontuação aumentando corretamente
-* Movimentação unicamente horizontal
+* Movimentação multidirecional
 
 ## Arquivos
 
