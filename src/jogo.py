@@ -74,7 +74,7 @@ def executar_jogo():
         # Status do Chefe 
         VIDA_CHEFE_PADRAO = 25
         velocidade_chefe = 1
-        tempo_spawn_chefe = 3000 # Tempo de espera spawn chefe
+        tempo_spawn_chefe = 40000 # Tempo de espera spawn chefe
         
         # Outras configurações
         DANO_TIRO = 1            
