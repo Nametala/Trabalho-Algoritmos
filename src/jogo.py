@@ -163,6 +163,8 @@ def executar_jogo():
                         tiro.kill()
                         ini.vida -= tiro.dano
                         if ini.vida <= 0:
+                            ini_morto_som = pygame.mixer.Sound(EXPLOSAO_INIMIGO)
+                            ini_morto_som.play()
                             ini.kill()  
                             pontos = calcular_pontos(pontos, 10)
                         break
@@ -171,6 +173,8 @@ def executar_jogo():
                     tiro.kill()
                     chefe.vida -= tiro.dano
                     if chefe.vida <= 0:
+                        boss_morto_som = pygame.mixer.Sound(EXPLOSAO_BOSS)
+                        boss_morto_som.play()
                         chefe = None
                         chefe_ativo = False
                         pontos = calcular_pontos(pontos, 1000) 
