@@ -1,12 +1,12 @@
 import pygame
 
 class Projetil(pygame.sprite.Sprite):
-    def __init__(self, x_jogador, y_jogador, local_arquivo): 
+    def __init__(self, x_jogador, y_jogador, CAMINHO_TIRO): 
         super().__init__()
         super().__init__()
         
         # Carrega o laser único do Piskel
-        imagem_original = pygame.image.load(local_arquivo).convert_alpha()
+        imagem_original = pygame.image.load(CAMINHO_TIRO).convert_alpha()
         
         # Define a escala do projétil
         escala_laser = 8
