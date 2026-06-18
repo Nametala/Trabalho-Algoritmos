@@ -257,6 +257,8 @@ def mostrar_tela_inicial(tela, fundo_inicial):
 
 def mostrar_tela_final(tela, fundo_final):
     fonte_titulo = pygame.font.Font(None, 74)
+    som_perdeu = pygame.mixer.Sound(SOM_MORTE)
+    som_perdeu.play()
     texto_titulo = fonte_titulo.render("O IMPÉRIO VENCEU", True, BRANCO)
 
     fonte_subtitulo = pygame.font.Font(None, 36)
