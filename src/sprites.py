@@ -129,12 +129,12 @@ class Inimigo(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
     def update(self):
-        # Mover para baixo
         self.rect.y += self.velocidade
-        # Chegar ao fim da tela
-        if self.rect.top > ALTURA_TELA:
-            self.kill()
         
+        
+        
+    
+
 class BarraDeVida(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()

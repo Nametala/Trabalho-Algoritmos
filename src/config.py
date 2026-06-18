@@ -23,3 +23,12 @@ CAMINHO_VIDA_CHEIA = "assets/imagens/sprite_barra_vida_cheia.png"
 CAMINHO_23_VIDA = "assets/imagens/sprite_barra_vida_23.png"
 CAMINHO_13_VIDA = "assets/imagens/sprite_barra_vida_13.png"
 CAMINHO_VIDA_VAZIA = "assets/imagens/sprite_barra_vida_vazia.png"
+
+EXPLOSAO_BOSS = "assets/sons/explosao_boss.mp3"
+EXPLOSAO_INIMIGO = "assets/sons/explosao_inimigo.mp3"
+SOM_MORTE = "assets/sons/morte.mp3"
+THEME_BOSS = "assets/sons/theme_boss.mp3"
+THEME = "assets/sons/theme.mp3"
+TIRO_SOM = "assets/sons/tiro.mp3"
+
+FONTE = "assets/fontes/starjedi/fonte.ttf"

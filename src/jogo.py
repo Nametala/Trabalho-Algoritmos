@@ -12,7 +12,15 @@ from src.config import (
     CAMINHO_FUNDO,
     CAMINHO_FUNDO_FINAL,
     CAMINHO_TIRO,
-    BRANCO
+    BRANCO,
+    SOM_MORTE,
+    TIRO_SOM,
+    EXPLOSAO_BOSS,
+    EXPLOSAO_INIMIGO,
+    THEME,
+    THEME_BOSS,
+    FONTE
+    
 )
 
 TAMANHO = (LARGURA_TELA, ALTURA_TELA)
@@ -29,8 +37,22 @@ from src.dados import (
 )
 
 
+
 def executar_jogo():
     pygame.init()
+    pygame.mixer.init()
+
+    #cache para a musica nao travar
+    pygame.mixer.set_num_channels(16)
+    canal_musica = pygame.mixer.Channel(0)
+
+    som_tema_normal = pygame.mixer.Sound(THEME)
+    som_tema_boss = pygame.mixer.Sound(THEME_BOSS)
+
+    som_tema_normal.set_volume(0.02)
+    som_tema_boss.set_volume(0.5)
+
+    fonte = pygame.font.Font(FONTE,32)
     
     tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
     pygame.display.set_caption(TITULO_JOGO)
@@ -47,10 +69,12 @@ def executar_jogo():
     fundo_final = pygame.transform.scale(fundo_final, TAMANHO)
 
     while True:
-        
+
         mostrar_tela_inicial(tela, fundo_inicial)
 
-        tempo_spawn_chefe = 40000
+        canal_musica.play(som_tema_normal, loops=-1, fade_ms=1000)
+
+        tempo_spawn_chefe = 10000
         
         frequencia_spawn_min = 30    
         frequencia_spawn_max = 90 
@@ -87,6 +111,12 @@ def executar_jogo():
                     sys.exit()
                 
                 if (evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE) or evento.type == pygame.MOUSEBUTTONDOWN:
+                    
+                    tiro_som = pygame.mixer.Sound(TIRO_SOM)
+                    tiro_som.set_volume(0.02)
+                    tiro_som.play(maxtime=2000)
+                    tiro_som.play()
+                    
                     novo_tiro = Projetil(jogador.rect.centerx, jogador.rect.top, CAMINHO_TIRO)
                     grupo_tiros.add(novo_tiro)
 
@@ -97,6 +127,7 @@ def executar_jogo():
                 chefe_ativo = True
                 mensagem_chefe = True 
                 tempo_fim_aviso = temporizador + 3000
+                canal_musica.play(som_tema_boss, loops=-1, fade_ms=1000)
             
             if chefe is not None:
                 chefe.update()
@@ -105,6 +136,7 @@ def executar_jogo():
                     vidas = tomar_dano(vidas, 100)
                     chefe = None
                     chefe_ativo = False
+                    canal_musica.play(som_tema_normal, loops=-1, fade_ms=1000)
 
             temporizador_spawn += 1
             if temporizador_spawn >= frequencia_spawn:
@@ -121,6 +153,7 @@ def executar_jogo():
             for ini in grupo_inimigos.sprites():
                 if ini.rect.top > ALTURA_TELA:
                     vidas = tomar_dano(vidas, 2)
+                    ini.kill()
 
 
             for tiro in grupo_tiros.sprites():
@@ -140,6 +173,7 @@ def executar_jogo():
                         chefe = None
                         chefe_ativo = False
                         pontos = calcular_pontos(pontos, 1000) 
+                        canal_musica.play(som_tema_normal, loops=-1, fade_ms=1000)
 
             for ini in grupo_inimigos.sprites():
                 if verificar_colisao(jogador.rect, ini.rect):
@@ -153,6 +187,7 @@ def executar_jogo():
 
             if jogador_perdeu(vidas):
                 rodando_partida = False 
+                canal_musica.fadeout(500)
 
             if pontos > recorde:
                 recorde = pontos
@@ -176,8 +211,8 @@ def executar_jogo():
 
             if mensagem_chefe:
                 if temporizador < tempo_fim_aviso:
-                    fonte_aviso = pygame.font.Font(None, 60) 
-                    texto_aviso = fonte_aviso.render("O IMPÉRIO CONTRA-ATACA!", True, (255, 0, 0)) 
+
+                    texto_aviso = fonte.render("O IMPÉRIO CONTRA-ATACA!",True,(255,0,0)) 
                     rect_aviso = texto_aviso.get_rect(center=(LARGURA_TELA // 2, (ALTURA_TELA // 2 - 150)))
                     tela.blit(texto_aviso, rect_aviso)
                 else:
