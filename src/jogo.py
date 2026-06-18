@@ -19,7 +19,8 @@ from src.config import (
     EXPLOSAO_INIMIGO,
     THEME,
     THEME_BOSS,
-    FONTE
+    FONTE,
+    DANO_TOMADO
     
 )
 
@@ -178,6 +179,8 @@ def executar_jogo():
             for ini in grupo_inimigos.sprites():
                 if verificar_colisao(jogador.rect, ini.rect):
                     vidas = tomar_dano(vidas, 1)
+                    dano = pygame.mixer.Sound(DANO_TOMADO)
+                    dano.play()
                     ini.kill()
 
             if chefe is not None and verificar_colisao(jogador.rect, chefe.rect):
