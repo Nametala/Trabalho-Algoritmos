@@ -180,6 +180,7 @@ def executar_jogo():
                     chefe.vida -= tiro.dano
                     if chefe.vida <= 0:
                         boss_morto_som = pygame.mixer.Sound(EXPLOSAO_BOSS)
+                        pontos = calcular_pontos(pontos, 1000)
                         boss_morto_som.set_volume(0.2)
                         boss_morto_som.play()
                         chefe = None
