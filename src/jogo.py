@@ -98,6 +98,7 @@ def executar_jogo():
         vidas = 3
         recorde = carregar_recorde(CAMINHO_RECORDE)
 
+
         rodando_partida = True
         
         tempo_inicio_partida = pygame.time.get_ticks()
@@ -292,3 +293,48 @@ def mostrar_pontos(tela, pontos, recorde, fonte):
     texto_recorde = fonte.render(f"Recorde: {recorde}", True, (255, 255, 255))
     tela.blit(texto_pontos, (20, 20))
     tela.blit(texto_recorde, (20, 55))
+
+
+#isso aqui ta regulando o jogo de acordo com o seu nivel, a cada 100 pontos aumenta velocidade vida e frequencia dos inimigos
+def calcular_dificuldade(pontos):
+    nivel = pontos // 100
+    velocidade = min(1 + nivel * 0.3, 5) # velocidade max 5
+    vida = (2 + nivel // 2, 8) # vida max 8
+    frequencia = max(90 - nivel * 5, 20) # minimo 20 frames entre os spawns
+    return velocidade, vida, frequencia
+
+
+def spawn_padroes_inimigos (grupo_inimigos, tipo, LARGURA_TELA):
+    ini_pos = []
+
+    # 5 inimigos em linha 
+    if tipo == 'linha':
+        for i in range(5):
+            x = 100 + i * 130
+            y = -40
+            ini_pos.append((x,y))
+
+    #formacao em V
+    elif tipo == 'v':
+        ini_pos = [
+            (LARGURA_TELA // 2,       -40),
+            (LARGURA_TELA // 2 - 120, -80),
+            (LARGURA_TELA // 2 + 120, -80),
+            (LARGURA_TELA // 2 - 240, -120),
+            (LARGURA_TELA // 2 + 240, -120),
+        ]
+    
+    #fila diagonal esquerda -> direita 
+    elif tipo == 'diagonal':
+        for i in range(5):
+            x = 80 + i * 140
+            y = -40 - i * 40
+            ini_pos.append((x,y))
+    
+    for x,y in ini_pos:
+        ini = Inimigo()
+        ini.rect.x = x
+        ini.rect.y = y
+        grupo_inimigos.add(ini)
+
+    
