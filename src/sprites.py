@@ -49,9 +49,6 @@ class Projetil(pygame.sprite.Sprite):
         if self.rect.y <= 0:
             self.kill()
 
-# Certifique-se de que LARGURA_TELA está importada no topo do seu sprites.py
-# Caso não esteja, importe do src.config
-
 class Chefe(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()

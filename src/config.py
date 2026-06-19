@@ -32,4 +32,4 @@ THEME = "assets/sons/theme.mp3"
 TIRO_SOM = "assets/sons/tiro.mp3"
 DANO_TOMADO = "assets/sons/dano_tomado.mp3"
 
-FONTE = "assets/fontes/starjedi/fonte.ttf"
+FONTE = "assets/fontes/fonte.otf"
