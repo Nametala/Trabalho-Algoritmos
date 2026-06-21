@@ -1,7 +1,7 @@
 import pygame
 import sys
 from src.config import ALTURA_TELA, LARGURA_TELA, SOM_MORTE, TITULO_JOGO
-from src.sprites import Inimigo
+from src.sprites import Inimigo, Chefe
 
 def calcular_pontos(pontos_atual, pontos_ganhos):
     """Soma os pontos ganhos à pontuação atual."""
@@ -33,14 +33,15 @@ def verificar_colisao(retangulo_1, retangulo_2):
 
 
 # isso aqui ta regulando o jogo de acordo com o seu nivel, a cada 500 pontos aumenta velocidade vida e frequencia dos inimigos
-def calcular_dificuldade(pontos):
+def calcular_dificuldade(pontos, frequencia_base=200):
     nivel = pontos // 500
-    velocidade = min(1 + nivel * 0.3, 5) # velocidade max 5
-    vida = (2 + nivel // 2, 8) # vida max 8
-    vida_chefe += 20
 
-    frequencia = max(90 - nivel * 5, 20) # minimo 20 frames entre os spawns
-    return velocidade, vida, vida_chefe, frequencia
+    velocidade = min(1 + nivel * 0.3, 4) #velocidade max = 4
+    vida_inimigo = min(2 + nivel // 2, 8) #vida max = 8
+    vida_chefe = 30 + nivel * 20 #aumento na vida do chefe
+    frequencia_spawn = max(frequencia_base - nivel * 5, 200) #frequencia max = 200
+
+    return velocidade, vida_inimigo, vida_chefe, frequencia_spawn
 
 def mostrar_pontos(tela, pontos, recorde, fonte):
     texto_pontos = fonte.render(f"Pontos: {pontos}", True, (255, 255, 255))
@@ -73,45 +74,47 @@ def mostrar_tela_final(tela, fundo_final, fonte_grande, fonte_pequena):
         tela.blit(texto_subtitulo, retangulo_subtitulo)
         pygame.display.flip()
 
-def spawn_padroes_inimigos(grupo_inimigos, tipo, LARGURA_TELA):
+def spawn_padroes_inimigos(grupo_inimigos, tipo, LARGURA_TELA, vida=2, velocidade=1):
     margem = 25
 
-    # 5 inimigos em linha
     if tipo == 1:
         for i in range(5):
-            ini = Inimigo()
+            ini = Inimigo(vida, velocidade)
             largura = ini.rect.width
             passo_x = (LARGURA_TELA - 2 * margem - largura) / 4
             ini.rect.x = margem + i * passo_x
             ini.rect.y = -40
             grupo_inimigos.add(ini)
 
-    # formação em V
     elif tipo == 2:
         offsets = [
-            (0,    -40),
-            (-160, -90),
-            (160,  -90),
-            (-320, -140),
-            (320,  -140),
+            (0,    -40), (-160, -90), (160, -90), (-320, -140), (320, -140),
         ]
         for dx, y in offsets:
-            ini = Inimigo()
+            ini = Inimigo(vida, velocidade)
             ini.rect.centerx = LARGURA_TELA // 2 + dx
             ini.rect.y = y
             grupo_inimigos.add(ini)
 
-    # fila diagonal esquerda -> direita (desce conforme avança pra direita)
     elif tipo == 3:
         for i in range(5):
-            ini = Inimigo()
+            ini = Inimigo(vida, velocidade)
             largura = ini.rect.width
             passo_x = (LARGURA_TELA - 2 * margem - largura) / 4
             ini.rect.x = margem + i * passo_x
             ini.rect.y = -80 + i * 10
             grupo_inimigos.add(ini)
 
-    # fila diagonal direita -> esquerda (desce conforme avança pra esquerda)
+    elif tipo == 4:
+        for i in range(5):
+            ini = Inimigo(vida, velocidade)
+            largura = ini.rect.width
+            passo_x = (LARGURA_TELA - 2 * margem - largura) / 4
+            ini.rect.x = LARGURA_TELA - margem - largura - i * passo_x
+            ini.rect.y = -80 + i * 10
+            grupo_inimigos.add(ini)
+
+    # fila diagonal direita -> esquerda 
     elif tipo == 4:
         for i in range(5):
             ini = Inimigo()

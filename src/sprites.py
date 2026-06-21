@@ -109,15 +109,15 @@ class Player(pygame.sprite.Sprite):
         if self.rect.top < 0: self.rect.top = 0
         if self.rect.bottom > ALTURA_TELA: self.rect.bottom = ALTURA_TELA
 
+
 class Inimigo(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, vida=2, velocidade=1): #variáveis dinâmicas para adequar a dificuldade
         super().__init__()
 
-        self.vida = 2
-        self.velocidade = 1
+        self.vida = vida
+        self.velocidade = velocidade
 
         self.image = pygame.image.load(CAMINHO_INIMIGO).convert_alpha()
-
         escala_inimigo = 2 
         largura_inimigo = int(self.image.get_width() * escala_inimigo)
         altura_inimigo = int(self.image.get_height() * escala_inimigo)

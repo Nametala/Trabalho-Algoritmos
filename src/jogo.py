@@ -84,7 +84,7 @@ def executar_jogo():
 
         canal_musica.play(som_tema_normal, loops=-1, fade_ms=1000)
         
-        frequencia_spawn = 100 # frequencia inicial de spawn
+        frequencia_base = 100 # frequencia inicial de spawn
 
 
         jogador = Player()
@@ -103,16 +103,20 @@ def executar_jogo():
         vidas = 3
         recorde = carregar_recorde(CAMINHO_RECORDE)
 
-
         rodando_partida = True
         
         tempo_inicio_partida = pygame.time.get_ticks()
         
         proximo_spawn_chefe = 15000 # Primeiro spawn
 
+        temporizador_spawn = 0
+        primeiro_spawn = True
+
         while rodando_partida:
             relogio.tick(FPS)
-            
+
+            velocidade, vida_inimigo, vida_chefe, frequencia_spawn = calcular_dificuldade(pontos)
+
             # Temporizador in game
             temporizador = pygame.time.get_ticks() - tempo_inicio_partida
 
@@ -135,11 +139,12 @@ def executar_jogo():
 
             if temporizador >= proximo_spawn_chefe and not chefe_ativo: 
                 chefe = Chefe()
+                chefe.vida = vida_chefe
                 chefe_ativo = True
                 mensagem_chefe = True 
                 tempo_fim_aviso = temporizador + 3000
                 canal_musica.play(som_tema_boss, loops=-1, fade_ms=1000)
-            
+
             if chefe is not None:
                 chefe.update()
                 
@@ -147,18 +152,21 @@ def executar_jogo():
                     vidas = tomar_dano(vidas, 100)
                     chefe = None
                     chefe_ativo = False
-                    proximo_spawn_chefe = temporizador + 30000 # tempo spawn boss
+                    proximo_spawn_chefe = temporizador + 30000
                     canal_musica.play(som_tema_normal, loops=-1, fade_ms=1000)
 
-            primeiro_spawn = True
+         
+            if primeiro_spawn:
+                frequencia_atual = 30
+            else:
+                frequencia_atual = frequencia_spawn
+
             temporizador_spawn += 1
-            if temporizador_spawn >= frequencia_spawn:
+            if temporizador_spawn >= frequencia_atual:
                 temporizador_spawn = 0
                 tipo = random.randint(1, 4)
-                spawn_padroes_inimigos(grupo_inimigos, tipo, LARGURA_TELA)
-                if primeiro_spawn:
-                    primeiro_spawn = False
-                    frequencia_spawn = random.randint(300, 450) #atualiza para a frequencia padrao de jogo
+                spawn_padroes_inimigos(grupo_inimigos, tipo, LARGURA_TELA, vida_inimigo, velocidade)
+                primeiro_spawn = False #atualiza para a frequencia padrao de jogo
 
             grupo_inimigos.update()
             grupo_tiros.update()    
