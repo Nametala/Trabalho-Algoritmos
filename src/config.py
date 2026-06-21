@@ -13,7 +13,7 @@ vidas = 3
 
 CAMINHO_RECORDE = "data/recorde.txt"
 CAMINHO_SPRITES = "assets/imagens/spritesheet.png"
-CAMINHO_FUNDO = "assets/imagens/backgroundnovo.png"
+CAMINHO_FUNDO = "assets/imagens/background.png"
 CAMINHO_TIRO = "assets/imagens/sprite_laser.png"
 CAMINHO_NAVE = "assets/imagens/sprite_nave.png"
 CAMINHO_INIMIGO = "assets/imagens/sprite_inimigo.png"

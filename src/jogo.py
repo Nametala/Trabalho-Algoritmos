@@ -31,6 +31,12 @@ from src.funcoes import (
     jogador_perdeu,
     verificar_colisao,
     tomar_dano,
+    mostrar_tela_inicial,
+    calcular_dificuldade,
+    mostrar_pontos,
+    mostrar_tela_final,
+    spawn_padroes_inimigos,
+    
 )
 from src.dados import (
     salvar_recorde,
@@ -73,14 +79,13 @@ def executar_jogo():
 
     while True:
 
-        # CORREÇÃO: Passando os dois parâmetros de fonte que a função agora exige
+       
         mostrar_tela_inicial(tela, fundo_inicial, fonte_grande, fonte_pequena)
 
         canal_musica.play(som_tema_normal, loops=-1, fade_ms=1000)
         
-        frequencia_spawn_min = 30    
-        frequencia_spawn_max = 90 
-        frequencia_spawn = random.randint(frequencia_spawn_min, frequencia_spawn_max) 
+        frequencia_spawn = 100 # frequencia inicial de spawn
+
 
         jogador = Player()
         barra_vida = BarraDeVida()
@@ -103,11 +108,12 @@ def executar_jogo():
         
         tempo_inicio_partida = pygame.time.get_ticks()
         
-        proximo_spawn_chefe = 10000 # Primeiro spawn
+        proximo_spawn_chefe = 15000 # Primeiro spawn
 
         while rodando_partida:
             relogio.tick(FPS)
             
+            # Temporizador in game
             temporizador = pygame.time.get_ticks() - tempo_inicio_partida
 
             for evento in pygame.event.get():
@@ -144,16 +150,18 @@ def executar_jogo():
                     proximo_spawn_chefe = temporizador + 30000 # tempo spawn boss
                     canal_musica.play(som_tema_normal, loops=-1, fade_ms=1000)
 
+            primeiro_spawn = True
             temporizador_spawn += 1
             if temporizador_spawn >= frequencia_spawn:
                 temporizador_spawn = 0
-                novo_inimigo = Inimigo()
-                novo_inimigo.rect.x = random.randint(0, LARGURA_TELA - novo_inimigo.rect.width)
-                novo_inimigo.rect.y = -novo_inimigo.rect.height
-                grupo_inimigos.add(novo_inimigo)
+                tipo = random.randint(1, 4)
+                spawn_padroes_inimigos(grupo_inimigos, tipo, LARGURA_TELA)
+                if primeiro_spawn:
+                    primeiro_spawn = False
+                    frequencia_spawn = random.randint(300, 450) #atualiza para a frequencia padrao de jogo
 
             grupo_inimigos.update()
-            grupo_tiros.update()
+            grupo_tiros.update()    
             barra_vida.update(vidas)
 
             for ini in grupo_inimigos.sprites():
@@ -227,7 +235,7 @@ def executar_jogo():
 
             if mensagem_chefe:
                 if temporizador < tempo_fim_aviso:
-                    # Ajustado para usar a fonte_grande no aviso do Boss
+                  
                     texto_aviso = fonte_grande.render("o ImperIo contra ATACA", True, (255, 0, 0)) 
                     rect_aviso = texto_aviso.get_rect(center=(LARGURA_TELA // 2, (ALTURA_TELA // 2 - 150)))
                     tela.blit(texto_aviso, rect_aviso)
@@ -236,105 +244,14 @@ def executar_jogo():
 
             pygame.display.flip()
 
-        # Ajustado para passar as duas fontes para a tela de game over também
+       
         mostrar_tela_final(tela, fundo_final, fonte_grande, fonte_pequena)
 
 
-def mostrar_tela_inicial(tela, fundo_inicial, fonte_grande, fonte_pequena):
-    texto_titulo = fonte_grande.render(TITULO_JOGO, True, (255, 255, 255))
-    texto_subtitulo = fonte_pequena.render("PRESSIONE ESPAÇO PARA INICIAR", True, (255, 255, 255))
-    
-    retangulo_titulo = texto_titulo.get_rect(center=(LARGURA_TELA // 2, ALTURA_TELA // 2 - 60))
-    retangulo_subtitulo = texto_subtitulo.get_rect(center=(LARGURA_TELA // 2, ALTURA_TELA // 2 + 40))
-    
-    esperando = True
-    while esperando:
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
-                esperando = False
-        
-        tela.blit(fundo_inicial, (0, 0))
-        tela.blit(texto_titulo, retangulo_titulo)
-        tela.blit(texto_subtitulo, retangulo_subtitulo)
-        pygame.display.flip()
 
 
-def mostrar_tela_final(tela, fundo_final, fonte_grande, fonte_pequena):
-    som_perdeu = pygame.mixer.Sound(SOM_MORTE)
-    som_perdeu.play()
-    
-    # Atualizado para usar fonte_grande no título e fonte_pequena no subtítulo
-    texto_titulo = fonte_grande.render("O IMPÉRIO VENCEU", True, (255, 255, 255))
-    texto_subtitulo = fonte_pequena.render("PRESSIONE ESPAÇO PARA REINICIAR", True, (255, 255, 255))
-    
-    retangulo_titulo = texto_titulo.get_rect(center=(LARGURA_TELA // 2, ALTURA_TELA // 2 - 80))
-    retangulo_subtitulo = texto_subtitulo.get_rect(center=(LARGURA_TELA // 2, ALTURA_TELA // 2 + 40))
-    
-    esperando = True
-    while esperando:
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
-                esperando = False
-        
-        tela.blit(fundo_final, (0, 0))
-        tela.blit(texto_titulo, retangulo_titulo)
-        tela.blit(texto_subtitulo, retangulo_subtitulo)
-        pygame.display.flip()
 
 
-def mostrar_pontos(tela, pontos, recorde, fonte):
-    texto_pontos = fonte.render(f"Pontos: {pontos}", True, (255, 255, 255))
-    texto_recorde = fonte.render(f"Recorde: {recorde}", True, (255, 255, 255))
-    tela.blit(texto_pontos, (20, 20))
-    tela.blit(texto_recorde, (20, 55))
 
-
-#isso aqui ta regulando o jogo de acordo com o seu nivel, a cada 100 pontos aumenta velocidade vida e frequencia dos inimigos
-def calcular_dificuldade(pontos):
-    nivel = pontos // 100
-    velocidade = min(1 + nivel * 0.3, 5) # velocidade max 5
-    vida = (2 + nivel // 2, 8) # vida max 8
-    frequencia = max(90 - nivel * 5, 20) # minimo 20 frames entre os spawns
-    return velocidade, vida, frequencia
-
-
-def spawn_padroes_inimigos (grupo_inimigos, tipo, LARGURA_TELA):
-    ini_pos = []
-
-    # 5 inimigos em linha 
-    if tipo == 'linha':
-        for i in range(5):
-            x = 100 + i * 130
-            y = -40
-            ini_pos.append((x,y))
-
-    #formacao em V
-    elif tipo == 'v':
-        ini_pos = [
-            (LARGURA_TELA // 2,       -40),
-            (LARGURA_TELA // 2 - 120, -80),
-            (LARGURA_TELA // 2 + 120, -80),
-            (LARGURA_TELA // 2 - 240, -120),
-            (LARGURA_TELA // 2 + 240, -120),
-        ]
-    
-    #fila diagonal esquerda -> direita 
-    elif tipo == 'diagonal':
-        for i in range(5):
-            x = 80 + i * 140
-            y = -40 - i * 40
-            ini_pos.append((x,y))
-    
-    for x,y in ini_pos:
-        ini = Inimigo()
-        ini.rect.x = x
-        ini.rect.y = y
-        grupo_inimigos.add(ini)
 
     
