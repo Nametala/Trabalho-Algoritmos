@@ -34,7 +34,7 @@ def verificar_colisao(retangulo_1, retangulo_2):
 
 # isso aqui ta regulando o jogo de acordo com o seu nivel, a cada 500 pontos aumenta velocidade vida e frequencia dos inimigos
 def calcular_dificuldade(pontos, frequencia_base=200):
-    nivel = pontos // 1500
+    nivel = pontos // 1000
 
     velocidade = min(1 + nivel * 0.3, 4) #velocidade max = 4
     vida_inimigo = min(2 + nivel // 2, 8) #vida max = 8
