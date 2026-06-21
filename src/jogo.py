@@ -189,7 +189,7 @@ def executar_jogo():
 
                             ini_morto_som.play()
                             ini.kill()  
-                            pontos = calcular_pontos(pontos, 10)
+                            pontos = calcular_pontos(pontos, 50)
                         break
                 
                 if chefe is not None and verificar_colisao(tiro.rect, chefe.rect):
@@ -197,7 +197,7 @@ def executar_jogo():
                     chefe.vida -= tiro.dano
                     if chefe.vida <= 0:
                         boss_morto_som = pygame.mixer.Sound(EXPLOSAO_BOSS)
-                        pontos = calcular_pontos(pontos, 3000)
+                        pontos = calcular_pontos(pontos, 1000)
                         boss_morto_som.set_volume(0.2)
                         boss_morto_som.play()
                         chefe = None
